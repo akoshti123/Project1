@@ -1,107 +1,117 @@
 #include <iostream>
-#include <cstring>
-#include <fstream>
-#include <cstdio>
+#include<fstream>
 #include <string>
+#include <cstring>
 using namespace std;
-
 int RomanToArabic(char charArray1[]);
 string ArabicToRoman(char charArray2[]);
+const string database = "numbers.txt";
+//your filestream for the database will connect to this variable
 
 int main()
 {
+    /* ################  DO NOT MODIFY CODE IN THIS BLOCK ###################### */
+    string temp;  //variable for database filename
+    string batch; //variable for batch filename
+
+    cout<<"Enter File Name: ";
+    cin>>temp;
+
+    ifstream infile(temp, ios::binary);
+    ofstream outfile(database, ios::binary);
+    string line;
+    if (infile)
+    {
+        while (infile.good())
+        {
+            getline(infile, line);
+            if (line != "")
+            {
+                outfile << line << "\n";
+            }
+        }
+    }
+    infile.close();
+    outfile.close();
+    /* ################  DO NOT MODIFY CODE IN THIS BLOCK ###################### */
+
+    fstream file(database, ios::binary | ios::in | ios::out);
     int n = 0;
     int value = 0;
-    int seeker = 0;
     string roman, arabic;
-    fstream file("numbers.txt", ios::out | ios::in | ios::binary);
-    string line;
     if (file.is_open())
     {
-        cout << file.tellp()<< endl;
         while (getline(file,line))
         {
             int check = 0;
             int check2 = 0;
-            /*
-            if(line.substr(0, 1) == " ")
+            if (line.substr(0,1) == " ")
             {
                 arabic = line;
-            }
-            else
-            {
-                check = 1;
-            }
-            int n = arabic.length();
-            char arab[n+5];
-            strcpy(arab, arabic.c_str());
-            for(int i = 0; i < n+3; i++)
-            {
-                if (ispunct(arab[i]) && arab[i] != '\0')
+                char arab[25];
+                strcpy(arab, arabic.c_str());
+                for(int i = 0; i < arabic.length(); i++)
                 {
-                    check = 1;
-                    string spaces2 = "";
-                    for (int i = 0; i < 20; i++)
+                    if(arab[i] != ' ' && (isalpha(arab[i]) || ispunct(arab[i])))
                     {
-                        spaces2 += " ";
+                        if (arab[i] == '\0')
+                        {
+                            continue;
+                        }
+                        //Problem Here
+                        check = 1;
+                        string spaces2 = "";
+                        for (int i = 0; i < 20; i++)
+                        {
+                            spaces2 += " ";
+                        }
+                        file.seekp(21*n);
+                        file << spaces2;
+                        file.seekp(0,ios::cur);
                     }
-                    *file.seekp(0);
-                    file << spaces2;
-
                 }
-                else if (isalpha(arab[i]) && arab[i] != '\0')
+                if (check == 0)
                 {
-                    check = 1;
-                    file.seekp(0);
-                    string spaces1 = "";
-                    for (int i = 0; i < 20; i++)
+                    string num = ArabicToRoman(arab);
+                    int much = num.size();
+                    for (int i = 0; i < 16 - much; i++)
                     {
-                        spaces1 += " ";
+                        num = num + " ";
                     }
-                    /*file.seekp(0);
-                    file << spaces1;
-
+                    file.seekp(21*n);
+                    cout << file.tellp() << endl;
+                    file.clear();
+                    file << num;
+                    file.seekp(5, ios::cur);
+                    cout << file.tellp() << endl;
                 }
-
             }
-
-            if (check == 0)
-            {
-                string num = ArabicToRoman(arab);
-                int much = num.size();
-                for (int i = 0; i < 16 - much; i++)
-                {
-                    num = num + " ";
-                }
-                file.seekp(line.length());
-                file.seekp(0);
-                file << num;
-
-            }
-            */
-
-            if (line.substr(0, 1) != " ")
+            else if (line.substr(0, 1) != " ")
             {
                 roman = line;
                 char rome[25];
                 strcpy(rome, roman.c_str());
-                for(int i = 0; i < 23; i++)
+                for(int i = 0; i < line.length(); i++)
                 {
                     if (rome[i] != ' ' && rome[i] != 'I' && rome[i] != 'V' && rome[i] != 'X' && rome[i] != 'L' && rome[i] != 'C' && rome[i] != 'D' && rome[i] != 'M')
                     {
                         if (rome[i] == '\0')
+                        {
                             continue;
+                        }
                         check2 = 1;
+                        //Problem Here
                         string spaces3 = "";
                         for (int i = 0; i < 20; i++)
                         {
                             spaces3+= " ";
                         }
-                        /*file.seekp(0);
+                        file.seekp(21*n);
                         file << spaces3;
-                         */
+                        file.seekp(0,ios::cur);
                     }
                 }
+
                 if (check2 == 0)
                 {
                     value = RomanToArabic(rome);
@@ -111,18 +121,17 @@ int main()
                     {
                         s += " ";
                     }
-                    cout << file.tellp() << endl;
                     file.seekp(21*n + 16);
-                    cout << file.tellp() << endl;
                     file.clear();
                     file << s;
-                    file.seekp(1, ios::cur);
-                    cout << file.tellp() << endl;
-                }
+                    file.seekp(1, ios::cur);}
             }
             n++;
         }
-
+    }
+    else
+    {
+        cout << "file did not open";
     }
     file.close();
     return 0;
@@ -177,8 +186,6 @@ int RomanToArabic(char charArray1[])
     return total;
 }
 
-
-/*
 string ArabicToRoman(char charArray2[])
 {
     int convert, thousands, hundreds, tens, ones;
@@ -219,79 +226,78 @@ string ArabicToRoman(char charArray2[])
         result = result + "D";
     }
     else
-    for (int i = 0; i < hundreds; i++)
-    {
-        result = result + "C";
-    }
-    if (tens < 4)
-    {
-        for(int i = 0; i < tens; i++)
+        for (int i = 0; i < hundreds; i++)
+        {
+            result = result + "C";
+        }
+        if (tens < 4)
+        {
+            for(int i = 0; i < tens; i++)
+            {
+                result = result + "X";
+            }
+        }
+        else if (tens == 5)
+        {
+            result = result + "L";
+        }
+        else if (tens == 4)
         {
             result = result + "X";
-        }
-    }
-    else if (tens == 5)
-    {
-        result = result + "L";
-    }
-    else if (tens == 4)
-    {
-            result = result + "X";
             result = result + "L";
-    }
-    else if (tens < 9 && tens > 5)
-    {
+        }
+        else if (tens < 9 && tens > 5)
+        {
             result = result + "L";
             for(int i = 0; i < (tens - 5); i++)
             {
                 result = result + "X";
             }
-    }
-    else if (tens == 9)
-    {
-        result = result + "XC";
-    }
-    else
-    {
-        for (int i = 0; i < tens; i++)
-        {
-            result = result + "X";
         }
-    }
-    if (ones < 4)
-    {
-        for(int i = 0; i < ones; i++)
+        else if (tens == 9)
         {
-            result = result + "I";
+            result = result + "XC";
         }
-    }
-    else if (ones == 4)
-    {
-        result = result + "IV";
-    }
-    else if (ones ==  5)
-    {
-        result = result + "V";
-    }
-    else if (ones == 9)
-    {
-        result = result + "IX";
-    }
-    else if (ones < 9 && ones > 5)
-    {
-        result = result + "V";
-        for (int i = 0; i < (ones - 5); i++)
+        else
         {
-            result  = result + "I";
+            for (int i = 0; i < tens; i++)
+            {
+                result = result + "X";
+            }
         }
-    }
-    else
-    {
-        for(int i = 0; i < ones; i++)
+        if (ones < 4)
         {
-            result = result + "I";
+            for(int i = 0; i < ones; i++)
+            {
+                result = result + "I";
+            }
         }
-    }
-    return result;
+        else if (ones == 4)
+        {
+            result = result + "IV";
+        }
+        else if (ones ==  5)
+        {
+            result = result + "V";
+        }
+        else if (ones == 9)
+        {
+            result = result + "IX";
+        }
+        else if (ones < 9 && ones > 5)
+        {
+            result = result + "V";
+            for (int i = 0; i < (ones - 5); i++)
+            {
+                result  = result + "I";
+            }
+        }
+        else
+        {
+            for(int i = 0; i < ones; i++)
+            {
+                result = result + "I";
+            }
+        }
+        return result;
 }
- */
