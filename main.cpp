@@ -13,6 +13,7 @@ int main()
     /* ################  DO NOT MODIFY CODE IN THIS BLOCK ###################### */
     string temp;  //variable for database filename
     string batch; //variable for batch filename
+    string t = "";
 
     cout<<"Enter File Name: ";
     cin>>temp;
@@ -45,14 +46,28 @@ int main()
         {
             int check = 0;
             int check2 = 0;
-            if (line.substr(0,1) == " ")
+            if(line == "                    ")
+            {
+                check = 1;
+                check2 = 1;
+                string spaces4 = "";
+                for (int i = 0; i < 20; i++)
+                {
+                    spaces4 += " ";
+                }
+                file.seekp(21*n);
+                n++;
+                file << spaces4;
+                file.seekp(1,ios::cur);
+            }
+            else if (line.substr(0,1) == " ")
             {
                 arabic = line;
                 char arab[25];
                 strcpy(arab, arabic.c_str());
                 for(int i = 0; i < arabic.length(); i++)
                 {
-                    if(arab[i] != ' ' && (isalpha(arab[i]) || ispunct(arab[i])))
+                    if(arab[i] != ' ' && (isalpha(arab[i]) || ispunct(arab[i]) || arab[16] == '0'))
                     {
                         if (arab[i] == '\0')
                         {
@@ -66,8 +81,10 @@ int main()
                             spaces2 += " ";
                         }
                         file.seekp(21*n);
+                        n++;
                         file << spaces2;
-                        file.seekp(0,ios::cur);
+                        file.seekp(1,ios::cur);
+                        break;
                     }
                 }
                 if (check == 0)
@@ -79,13 +96,13 @@ int main()
                         num = num + " ";
                     }
                     file.seekp(21*n);
-                    cout << file.tellp() << endl;
+                    n++;
                     file.clear();
                     file << num;
                     file.seekp(5, ios::cur);
-                    cout << file.tellp() << endl;
                 }
             }
+
             else if (line.substr(0, 1) != " ")
             {
                 roman = line;
@@ -100,33 +117,50 @@ int main()
                             continue;
                         }
                         check2 = 1;
-                        //Problem Here
                         string spaces3 = "";
                         for (int i = 0; i < 20; i++)
                         {
                             spaces3+= " ";
                         }
                         file.seekp(21*n);
+                        n++;
                         file << spaces3;
-                        file.seekp(0,ios::cur);
+                        file.seekp(1,ios::cur);
+                        break;
                     }
                 }
 
                 if (check2 == 0)
                 {
                     value = RomanToArabic(rome);
-                    std::string s = std::to_string(value);
-                    int diff = 4 - s.size();
-                    for (int i = 0; i < diff; i++)
+                    if (value == 0)
                     {
-                        s += " ";
+                        for (int i = 0; i < 4; i++)
+                        {
+                            t += " ";
+                        }
+                        file.seekp(21*n + 16);
+                        n++;
+                        file.clear();
+                        file << t;
+                        file.seekp(1, ios::cur);
                     }
-                    file.seekp(21*n + 16);
-                    file.clear();
-                    file << s;
-                    file.seekp(1, ios::cur);}
+                    else
+                    {
+                        std::string s = std::to_string(value);
+                        int diff = 4 - s.size();
+                        for (int i = 0; i < diff; i++)
+                        {
+                            s += " ";
+                        }
+                        file.seekp(21*n + 16);
+                        n++;
+                        file.clear();
+                        file << s;
+                        file.seekp(1, ios::cur);
+                    }
+                }
             }
-            n++;
         }
     }
     else
@@ -146,11 +180,15 @@ int RomanToArabic(char charArray1[])
         {
             total = total + 1000;
         }
-        if(charArray1[i] == 'D')
+        else if(charArray1[i] == 'D')
         {
             total = total + 500;
         }
-        if(charArray1[i] == 'C' && charArray1[i+1] == 'D')
+        else if(charArray1[i] == 'C' && charArray1[i+1] == 'D')
+        {
+            total = total - 100;
+        }
+        else if(charArray1[i] == 'C' && charArray1[i+1] == 'M')
         {
             total = total - 100;
         }
@@ -158,11 +196,15 @@ int RomanToArabic(char charArray1[])
         {
             total = total + 100;
         }
-        if(charArray1[i] == 'L')
+        else if(charArray1[i] == 'L')
         {
             total = total + 50;
         }
-        if(charArray1[i] == 'X' && charArray1[i+1] == 'L')
+        else if(charArray1[i] == 'X' && charArray1[i+1] == 'L')
+        {
+            total = total - 10;
+        }
+        else if(charArray1[i] == 'X' && charArray1[i+1] == 'C')
         {
             total = total - 10;
         }
@@ -170,11 +212,11 @@ int RomanToArabic(char charArray1[])
         {
             total = total + 10;
         }
-        if(charArray1[i] == 'V')
+        else if(charArray1[i] == 'V')
         {
             total = total + 5;
         }
-        if(charArray1[i] == 'I' && (charArray1[i+1] == 'X' || charArray1[i+2] == 'V'))
+        else if(charArray1[i] == 'I' && (charArray1[i+1] == 'X' || charArray1[i+1] == 'V'))
         {
             total = total - 1;
         }
@@ -223,7 +265,7 @@ string ArabicToRoman(char charArray2[])
     else if (hundreds == 9)
     {
         result = result + "C";
-        result = result + "D";
+        result = result + "M";
     }
     else
         for (int i = 0; i < hundreds; i++)
